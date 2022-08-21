@@ -106,7 +106,7 @@ export class ArticleService {
     console.log(article_list);
 
     article_list.map(async (article: Article) => {
-      var data = {
+      const data = {
         id: article.id,
         title: article.title,
         thumbnail: article.thumbnail,
@@ -199,14 +199,16 @@ export class ArticleService {
   async getSumSol(user: User, article_id: number | null): Promise<SumSol[]> {
     let sumsol;
     if (article_id === null) {
-      sumsol = await this.sumSolRepository.find({
-        where: {
-          user: Equal(user),
-        },
-        relations: {
-          article_id: true,
-        },
-      });
+      sumsol = (
+        await this.sumSolRepository.find({
+          where: {
+            user: Equal(user),
+          },
+          relations: {
+            article_id: true,
+          },
+        })
+      ).slice(0, 10);
     } else {
       sumsol = await this.sumSolRepository.find({
         where: {
@@ -281,10 +283,17 @@ export class ArticleService {
     const user_list = Array.from(usermap.keys()).map((val) => {
       return {
         id: val,
-        score: usermap.get(val),
+        score: Math.floor(usermap.get(val) * 100),
         name: userNameMap.get(val),
       };
     });
+
+    // sort by score
+    user_list
+      .sort((a, b) => {
+        return b.score - a.score;
+      })
+      .slice(0, 10);
     // get max score foe each users
     console.log(user_list);
 
