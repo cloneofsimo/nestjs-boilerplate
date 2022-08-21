@@ -10,6 +10,8 @@ import {
   UpdateDateColumn,
   BeforeInsert,
   BeforeUpdate,
+  OneToMany,
+  JoinTable,
 } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
 import { Status } from '../../statuses/entities/status.entity';
@@ -17,6 +19,7 @@ import { FileEntity } from '../../files/entities/file.entity';
 import * as bcrypt from 'bcryptjs';
 import { EntityHelper } from 'src/utils/entity-helper';
 import { AuthProvidersEnum } from 'src/auth/auth-providers.enum';
+import { SumSol } from 'src/article/entities/sumsol.entity';
 
 @Entity()
 export class User extends EntityHelper {
@@ -26,7 +29,13 @@ export class User extends EntityHelper {
   @Column({ unique: true, nullable: true })
   email: string | null;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false, default: 0 })
+  prob_num: number; //문제 수
+
+  @Column({ nullable: false, default: 0.0, type: 'float' })
+  exper: number;
+
+  @Column({ nullable: false })
   password: string;
 
   public previousPassword: string;
@@ -65,6 +74,9 @@ export class User extends EntityHelper {
   })
   photo?: FileEntity | null;
 
+  @OneToMany((type) => SumSol, (sumsol) => sumsol.user, { eager: false })
+  sumsol: SumSol[] | null;
+
   @ManyToOne(() => Role, {
     eager: true,
   })
@@ -73,7 +85,7 @@ export class User extends EntityHelper {
   @ManyToOne(() => Status, {
     eager: true,
   })
-  status?: Status;
+  status?: Status | null;
 
   @Column({ nullable: true })
   @Index()

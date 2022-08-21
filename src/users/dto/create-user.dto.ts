@@ -1,13 +1,7 @@
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../../roles/entities/role.entity';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  MinLength,
-  Validate,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, MinLength, Validate } from 'class-validator';
 import { Status } from '../../statuses/entities/status.entity';
 import { IsNotExist } from '../../utils/validators/is-not-exists.validator';
 import { FileEntity } from '../../files/entities/file.entity';
@@ -20,11 +14,9 @@ export class CreateUserDto {
   @Validate(IsNotExist, ['User'], {
     message: 'emailAlreadyExists',
   })
-  @IsEmail()
   email: string | null;
 
   @ApiProperty()
-  @MinLength(6)
   password?: string;
 
   provider?: string;

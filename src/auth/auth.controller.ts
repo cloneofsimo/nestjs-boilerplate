@@ -46,6 +46,12 @@ export class AuthController {
     return this.service.register(createUserDto);
   }
 
+  @Post('admin/email/register')
+  @HttpCode(HttpStatus.CREATED)
+  async registerAdmin(@Body() createUserDto: AuthRegisterLoginDto) {
+    return this.service.registerAdmin(createUserDto);
+  }
+
   @Post('email/confirm')
   @HttpCode(HttpStatus.OK)
   async confirmEmail(@Body() confirmEmailDto: AuthConfirmEmailDto) {

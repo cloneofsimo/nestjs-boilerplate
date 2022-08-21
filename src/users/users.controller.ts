@@ -12,6 +12,7 @@ import {
   ParseIntPipe,
   HttpStatus,
   HttpCode,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,9 +24,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/roles/roles.guard';
 import { infinityPagination } from 'src/utils/infinity-pagination';
 
-@ApiBearerAuth()
-@Roles(RoleEnum.admin)
-@UseGuards(AuthGuard('jwt'), RolesGuard)
 @ApiTags('Users')
 @Controller({
   path: 'users',
@@ -34,10 +32,18 @@ import { infinityPagination } from 'src/utils/infinity-pagination';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiBearerAuth()
+  @Roles(RoleEnum.admin)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createProfileDto: CreateUserDto) {
     return this.usersService.create(createProfileDto);
+  }
+  @Get('topkuser')
+  @HttpCode(HttpStatus.OK)
+  async getTopKUser() {
+    return this.usersService.topkUserswithExp(10);
   }
 
   @Get()
@@ -59,6 +65,17 @@ export class UsersController {
     );
   }
 
+  @ApiBearerAuth()
+  @Roles(RoleEnum.admin)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Get('getUserInfo')
+  getUserInfo(@Request() req) {
+    return this.usersService.getInfo(req.user.id);
+  }
+
+  @ApiBearerAuth()
+  @Roles(RoleEnum.admin)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id') id: string) {

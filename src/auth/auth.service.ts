@@ -16,7 +16,6 @@ import { SocialInterface } from 'src/social/interfaces/social.interface';
 import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { UsersService } from 'src/users/users.service';
 import { ForgotService } from 'src/forgot/forgot.service';
-import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +23,6 @@ export class AuthService {
     private jwtService: JwtService,
     private usersService: UsersService,
     private forgotService: ForgotService,
-    private mailService: MailService,
   ) {}
 
   async validateLogin(
@@ -164,12 +162,24 @@ export class AuthService {
       } as Status,
       hash,
     });
+  }
 
-    await this.mailService.userSignUp({
-      to: user.email,
-      data: {
-        hash,
-      },
+  async registerAdmin(dto: AuthRegisterLoginDto): Promise<void> {
+    const hash = crypto
+      .createHash('sha256')
+      .update(randomStringGenerator())
+      .digest('hex');
+
+    const user = await this.usersService.create({
+      ...dto,
+      email: dto.email,
+      role: {
+        id: RoleEnum.admin,
+      } as Role,
+      status: {
+        id: StatusEnum.inactive,
+      } as Status,
+      hash,
     });
   }
 
@@ -218,13 +228,6 @@ export class AuthService {
       await this.forgotService.create({
         hash,
         user,
-      });
-
-      await this.mailService.forgotPassword({
-        to: email,
-        data: {
-          hash,
-        },
       });
     }
   }
